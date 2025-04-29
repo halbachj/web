@@ -1,0 +1,5 @@
+build:
+  image: Dockerfile
+  command: ./build.sh
+  directory: output
+
