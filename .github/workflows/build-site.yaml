@@ -39,7 +39,6 @@ jobs:
         run: |
           git fetch origin
           git checkout -B "${{ steps.branch.outputs.target_branch }}"
-          cp -r output/* .
           git add .
           git commit -m "Build site for ${{ steps.branch.outputs.target_branch }}" || echo "No changes to commit"
           git push origin "${{ steps.branch.outputs.target_branch }}"
