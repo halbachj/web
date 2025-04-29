@@ -7,6 +7,9 @@ mkdir -p output
 
 for f in content/*.md; do
   filename=$(basename "$f" .md)
-  pandoc "$f" --standalone --output="output/$filename.html"
+  outputf=$(basename /output/ "$f" .html)
+  echo "Building $filename"
+  pandoc "$f" --standalone --output="$outputf"
+  echo "Finished building $filename. Output written to $outputf"
 done
 
