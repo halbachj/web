@@ -32,6 +32,7 @@ jobs:
           else
             TARGET="main"
           fi
+          echo "Selected target: $TARGET"
           echo "target_branch=$TARGET" >> $GITHUB_OUTPUT
 
       - name: Push built site
