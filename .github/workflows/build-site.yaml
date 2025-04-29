@@ -1,28 +1,44 @@
-name: Build Site with Pandoc
+name: Build and Deploy Site
 
 on:
   push:
     branches:
       - main
+      - 'feat/**'
 
 jobs:
   build:
+    if: github.actor != 'github-actions'
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
 
       - name: Install Pandoc
-        run: sudo apt-get update && sudo apt-get install -y pandoc
+        run: sudo apt-get install -y pandoc
 
       - name: Build site
         run: ./build.sh
 
-      - name: Commit built site
+      - name: Determine target branch
+        id: branch
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add output/
-          git commit -m "Auto-build site" || echo "No changes to commit"
-          git push
+          if [[ "${GITHUB_REF_NAME}" == feat/* ]]; then
+            TARGET="preview/$(echo ${GITHUB_REF_NAME} | tr / -)"
+          else
+            TARGET="main"
+          fi
+          echo "target_branch=$TARGET" >> $GITHUB_OUTPUT
+
+      - name: Push built site
+        run: |
+          git fetch origin
+          git checkout -B "${{ steps.branch.outputs.target_branch }}"
+          cp -r output/* .
+          git add .
+          git commit -m "Build site for ${{ steps.branch.outputs.target_branch }}" || echo "No changes to commit"
+          git push origin "${{ steps.branch.outputs.target_branch }}"
